@@ -2225,7 +2225,11 @@ class Autodock:
 
         ligands = self.docking_ligand_list.get()
         if ligands == 'All':
-            pth = self.ligand_dic['VS_DIR']
+            try:
+                pth = self.ligand_dic['VS_DIR']
+            except KeyError:
+                self.ligand_dic['VS_DIR'] = self.work_dir()
+                pth = self.ligand_dic['VS_DIR']
         else:
             lig_pdbqt = self.ligand_dic[ligands].ligand_pdbqt
         self.docking_page_log_text.insert('end', ' > LIGAND(s)         : %s\n' % ligands)
@@ -2308,7 +2312,11 @@ class Autodock:
 
         ligands = self.docking_ligand_list.get()
         if ligands == 'All':
-            pth = self.ligand_dic['VS_DIR']
+            try:
+                pth = self.ligand_dic['VS_DIR']
+            except KeyError:
+                self.ligand_dic['VS_DIR'] = self.work_dir()
+                pth = self.ligand_dic['VS_DIR']
         else:
             lig_pdbqt = self.ligand_dic[ligands].ligand_pdbqt
         self.docking_page_log_text.insert('end', ' > LIGAND(s)         : %s\n' % ligands)
@@ -2533,7 +2541,7 @@ class Autodock:
             model.name = name
             pose_list.append(model)
 
-        pose_list.sort(lambda a, b: cmp(a.energy, b.energy))
+        pose_list.sort(key=lambda a: a.energy)
         self.pose_viewer_ligand_dic[name] = {}
         for i in range(len(pose_list)):
             pose_list[i].poseN = i + 1
@@ -2562,7 +2570,7 @@ class Autodock:
 #            print model.energy
             pose_list.append(model)
            # print 'done pose list'
-        pose_list.sort(lambda a, b: cmp(a.energy, b.energy))
+        pose_list.sort(key=lambda a: a.energy)
 
         self.pose_viewer_ligand_dic[name] = {}
         for i in range(len(pose_list)):
@@ -2579,7 +2587,7 @@ class Autodock:
         self.pose_viewer_ligand_pages[name] = {'name': self.pose_viewer_notebook.add(name)}
         pose_list = list(self.pose_viewer_ligand_dic[name].keys())
 
-        pose_list.sort(lambda a, b: cmp(int(a.split('::')[1]), int(b.split('::')[1])))
+        pose_list.sort(key=lambda a: int(a.split('::')[1]))
         self.pose_viewer_ligand_pages[name].update({'poses': pose_list})
 
         self.pose_viewer_buttonbox = Pmw.ButtonBox(self.pose_viewer_ligand_pages[name]['name'], padx=3)
@@ -2676,7 +2684,7 @@ class Autodock:
         self.sort_complete_ligand_list()
 
     def sort_complete_ligand_list(self):
-        self.all_ligands.sort(lambda a, b: cmp(a.energy, b.energy))
+        self.all_ligands.sort(key=lambda a: a.energy)
 
     def select_best_poses(self):
         self.sort_complete_ligand_list()
